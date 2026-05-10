@@ -34,9 +34,49 @@ const run = async () => {
       res.send(result);
     });
 
-    app.get("/user/:id", async (req, res) => {
-      console.log(req.params.id);
-      res.send("Get user by id  ");
+    app.get("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const user = await userCollection.findOne(query);
+      console.log("user id".id);
+      res.send(user);
+    });
+
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+
+      // console.log('user to be inserted',newUser);
+
+      const result = await userCollection.insertOne(newUser);
+
+      res.send(result);
+    });
+
+    app.patch("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+
+      const modifiedUser = req.body;
+      const updatedDocuments = {
+        $set: {
+          name: modifiedUser.name,
+          email: modifiedUser.email,
+          role: modifiedUser.role,
+        },
+      };
+      const result = await userCollection.updateOne(filter, updatedDocuments);
+      res.send(result);
+    });
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
